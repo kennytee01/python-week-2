@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>I Thought I Was Getting It | Kehinde</title>
+    <meta name="description" content="Week 2 of learning Python at Dataraflow: OOP, inheritance, iterators, polymorphism and scope, and what a 7 out of 10 taught me.">
+    <meta property="og:title" content="I Thought I Was Getting It">
+    <meta property="og:description" content="Week 2 of learning Python at Dataraflow, by Kehinde.">
+
+    <!-- Tailwind CSS (allowed script host) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts: Inter, Poppins, JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        paper: 'rgb(var(--paper) / <alpha-value>)',
+                        card: 'rgb(var(--card) / <alpha-value>)',
+                        ink: 'rgb(var(--ink) / <alpha-value>)',
+                        code: 'rgb(var(--code) / <alpha-value>)',
+                        accent: {
+                            DEFAULT: 'rgb(var(--accent) / <alpha-value>)',
+                            text: 'rgb(var(--accent-text) / <alpha-value>)'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        heading: ['Poppins', 'Inter', 'system-ui', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'ui-monospace', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Colour tokens (space separated RGB so Tailwind opacity classes work) */
+        :root {
+            --paper: 247 248 250;
+            --card: 255 255 255;
+            --ink: 11 31 58;
+            --code: 11 31 58;
+            --accent: 20 184 166;
+            --accent-text: 15 118 110;
+            color-scheme: light;
+            box-sizing: border-box;
+            padding-top: env(safe-area-inset-top, 0px);
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+        }
+        @media (prefers-color-scheme: dark) {
+            :root:not([data-theme="light"]) {
+                --paper: 8 16 30;
+                --card: 15 30 54;
+                --ink: 231 237 246;
+                --code: 4 10 20;
+                --accent: 20 184 166;
+                --accent-text: 45 212 191;
+                color-scheme: dark;
+            }
+        }
+        :root[data-theme="dark"] {
+            --paper: 8 16 30;
+            --card: 15 30 54;
+            --ink: 231 237 246;
+            --code: 4 10 20;
+            --accent: 20 184 166;
+            --accent-text: 45 212 191;
+            color-scheme: dark;
+        }
+
+        html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+
+        body {
+            background-color: rgb(var(--paper));
+            color: rgb(var(--ink));
+            font-family: 'Inter', system-ui, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        .notebook-grid {
+            background-image: radial-gradient(rgb(var(--ink) / 0.10) 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+
+        /* Button: darker teal so white text is easy to read */
+        .cta {
+            background-color: #0F766E;
+            color: #FFFFFF;
+            transition: background-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+            box-shadow: 0 4px 14px 0 rgba(15, 118, 110, 0.35);
+        }
+        .cta:hover { background-color: #115E59; transform: translateY(-2px); }
+        .cta:active { transform: translateY(0); }
+        .cta:focus-visible, .pill:focus-visible {
+            outline: 3px solid #14B8A6;
+            outline-offset: 3px;
+        }
+
+        .card-shadow { box-shadow: 0 4px 20px -2px rgba(11, 31, 58, 0.08); }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .icon { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+
+        @media (prefers-reduced-motion: reduce) {
+            .cta { transition: none; }
+            .cta:hover { transform: none; }
+        }
+    </style>
+</head>
+<body class="relative min-h-screen antialiased selection:bg-accent selection:text-white">
+
+    <!-- Notebook dot grid background -->
+    <div class="fixed inset-0 notebook-grid pointer-events-none z-0" aria-hidden="true"></div>
+
+    <main class="relative z-10 max-w-3xl mx-auto px-5 py-8 md:py-16 space-y-16 md:space-y-24">
+
+        <!-- 1. HERO -->
+        <section class="text-center pt-6 md:pt-10 flex flex-col items-center">
+            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-accent/10 text-accent-text font-medium text-xs md:text-sm mb-6 border border-accent/30">
+                <span class="w-2 h-2 rounded-full bg-accent animate-pulse motion-reduce:animate-none"></span>
+                Dataraflow Week 2
+            </div>
+
+            <h1 class="font-heading font-bold text-3xl sm:text-4xl md:text-5xl lg:text-6xl tracking-tight leading-tight mb-4">
+                I Thought I Was Getting It
+            </h1>
+
+            <p class="font-medium text-lg sm:text-xl text-ink/70 mb-6 max-w-xl">
+                Week 2 of Learning Python at Dataraflow
+            </p>
+
+            <div class="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-xs md:text-sm text-ink/70 mb-8 font-mono bg-card/70 px-4 py-2 rounded-lg border border-ink/10">
+                <span>By Kehinde</span>
+                <span class="text-ink/30" aria-hidden="true">&bull;</span>
+                <span>September 2026</span>
+                <span class="text-ink/30" aria-hidden="true">&bull;</span>
+                <span class="flex items-center gap-1 text-accent-text font-semibold">
+                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+                    5 min read
+                </span>
+            </div>
+
+            <a data-article href="#" target="_blank" rel="noopener noreferrer" class="cta font-semibold px-7 py-3.5 rounded-xl flex items-center justify-center gap-3 text-base w-full sm:w-auto">
+                <span>Read the article on Medium</span>
+                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </a>
+        </section>
+
+        <!-- 2. PULL QUOTE -->
+        <section>
+            <div class="bg-card rounded-2xl p-6 md:p-10 border border-ink/10 card-shadow relative overflow-hidden">
+                <div class="absolute -top-4 -left-2 text-ink/5 font-serif text-8xl select-none" aria-hidden="true">&ldquo;</div>
+                <blockquote class="relative z-10 font-heading font-semibold text-xl sm:text-2xl md:text-3xl text-center leading-snug md:leading-relaxed">
+                    &ldquo;Kehinde, don't run. The more you look, the clearer you see.&rdquo;
+                </blockquote>
+            </div>
+        </section>
+
+        <!-- 3. SCORE STRIP -->
+        <section class="space-y-4">
+            <div class="grid grid-cols-2 gap-3 sm:gap-6">
+                <div class="bg-card rounded-2xl p-5 sm:p-7 border border-ink/10 card-shadow text-center flex flex-col items-center justify-center">
+                    <div class="font-heading font-bold text-4xl sm:text-5xl mb-1">9<span class="text-xl sm:text-2xl text-ink/50 font-normal">/10</span></div>
+                    <div class="text-xs sm:text-sm font-semibold tracking-wider text-accent-text uppercase">OOP</div>
+                </div>
+                <div class="bg-card rounded-2xl p-5 sm:p-7 border border-ink/10 card-shadow text-center flex flex-col items-center justify-center">
+                    <div class="font-heading font-bold text-4xl sm:text-5xl mb-1">7<span class="text-xl sm:text-2xl text-ink/50 font-normal">/10</span></div>
+                    <div class="text-xs sm:text-sm font-semibold tracking-wider text-accent-text uppercase">Inheritance</div>
+                </div>
+            </div>
+            <p class="text-center text-sm text-ink/70 italic px-4">
+                The questions I missed were not about keywords. They were about how things connect.
+            </p>
+        </section>
+
+        <!-- 4. FIVE TOPICS -->
+        <section class="space-y-4">
+            <div class="flex items-center justify-between">
+                <h2 class="font-heading font-bold text-lg tracking-tight">Five Topics This Week</h2>
+                <span class="text-xs font-mono text-ink/60 sm:hidden">Swipe &rarr;</span>
+            </div>
+
+            <div class="flex snap-x snap-mandatory sm:snap-none sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-3 overflow-x-auto sm:overflow-visible no-scrollbar pb-2 pt-1 -mx-5 px-5 sm:mx-0 sm:px-0">
+
+                <div class="snap-start min-w-[230px] sm:min-w-0 bg-card rounded-xl p-4 border border-ink/10 card-shadow">
+                    <div class="w-8 h-8 rounded-lg bg-accent/10 text-accent-text flex items-center justify-center mb-3 font-semibold text-sm">01</div>
+                    <h3 class="font-heading font-bold text-sm mb-1">OOP</h3>
+                    <p class="text-xs text-ink/70 leading-relaxed">Classes and objects: a blueprint, and the things built from it.</p>
+                </div>
+
+                <div class="snap-start min-w-[230px] sm:min-w-0 bg-card rounded-xl p-4 border border-ink/10 card-shadow">
+                    <div class="w-8 h-8 rounded-lg bg-accent/10 text-accent-text flex items-center justify-center mb-3 font-semibold text-sm">02</div>
+                    <h3 class="font-heading font-bold text-sm mb-1">Inheritance</h3>
+                    <p class="text-xs text-ink/70 leading-relaxed">A child class gets what its parent has, and can still do things differently.</p>
+                </div>
+
+                <div class="snap-start min-w-[230px] sm:min-w-0 bg-card rounded-xl p-4 border border-ink/10 card-shadow">
+                    <div class="w-8 h-8 rounded-lg bg-accent/10 text-accent-text flex items-center justify-center mb-3 font-semibold text-sm">03</div>
+                    <h3 class="font-heading font-bold text-sm mb-1">Iterators</h3>
+                    <p class="text-xs text-ink/70 leading-relaxed">Going through items one at a time, and knowing when to stop.</p>
+                </div>
+
+                <div class="snap-start min-w-[230px] sm:min-w-0 bg-card rounded-xl p-4 border border-ink/10 card-shadow">
+                    <div class="w-8 h-8 rounded-lg bg-accent/10 text-accent-text flex items-center justify-center mb-3 font-semibold text-sm">04</div>
+                    <h3 class="font-heading font-bold text-sm mb-1">Polymorphism</h3>
+                    <p class="text-xs text-ink/70 leading-relaxed">The same method name, with a different result depending on the object.</p>
+                </div>
+
+                <div class="snap-start min-w-[230px] sm:min-w-0 bg-card rounded-xl p-4 border border-ink/10 card-shadow sm:col-span-2 lg:col-span-1">
+                    <div class="w-8 h-8 rounded-lg bg-accent/10 text-accent-text flex items-center justify-center mb-3 font-semibold text-sm">05</div>
+                    <h3 class="font-heading font-bold text-sm mb-1">Scope</h3>
+                    <p class="text-xs text-ink/70 leading-relaxed">Where a variable can be seen, and where it cannot.</p>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 5. THE CODE MOMENT -->
+        <section class="space-y-3">
+            <div class="bg-code rounded-2xl p-5 sm:p-6 text-white font-mono shadow-xl relative overflow-hidden border border-white/10">
+                <div class="flex items-center gap-2 mb-4 pb-3 border-b border-white/10">
+                    <span class="w-3 h-3 rounded-full bg-red-500/80 inline-block" aria-hidden="true"></span>
+                    <span class="w-3 h-3 rounded-full bg-yellow-500/80 inline-block" aria-hidden="true"></span>
+                    <span class="w-3 h-3 rounded-full bg-green-500/80 inline-block" aria-hidden="true"></span>
+                    <span class="ml-auto text-[11px] text-white/60 font-mono">scope_task.py</span>
+                </div>
+
+<pre class="text-xs sm:text-sm leading-relaxed overflow-x-auto"><code><span class="text-accent">len</span> = <span class="text-amber-300">100</span>
+<span class="text-accent">len</span>([<span class="text-amber-300">1</span>, <span class="text-amber-300">2</span>, <span class="text-amber-300">3</span>])
+<span class="text-white/60"># TypeError: 'int' object is not callable</span></code></pre>
+            </div>
+
+            <p class="text-center text-sm text-ink/70 italic px-2">
+                I accidentally hid a tool Python gives you for free.
+            </p>
+        </section>
+
+        <!-- 6. WHAT I BUILT -->
+        <section>
+            <div class="bg-card rounded-2xl p-6 md:p-8 border border-ink/10 card-shadow space-y-5">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-accent/10 text-accent-text flex items-center justify-center text-lg">
+                        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5a2 2 0 0 1 2-2h13v15H6a2 2 0 0 0-2 2V5z"/><path d="M4 20a2 2 0 0 0 2 2h13"/></svg>
+                    </div>
+                    <div>
+                        <span class="text-[11px] font-semibold uppercase tracking-wider text-accent-text">Take home project</span>
+                        <h3 class="font-heading font-bold text-xl">Library Management System</h3>
+                    </div>
+                </div>
+
+                <p class="text-sm text-ink/80 leading-relaxed">
+                    A small system to practise the whole week: books, members, borrowing rules and search.
+                </p>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                    <div class="flex items-center gap-2.5 p-3 rounded-lg bg-paper text-xs font-medium">
+                        <svg class="icon text-accent-text text-base" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/></svg>
+                        <span>Books, ebooks and printed books</span>
+                    </div>
+                    <div class="flex items-center gap-2.5 p-3 rounded-lg bg-paper text-xs font-medium">
+                        <svg class="icon text-accent-text text-base" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c3 2 9 2 12 0v-5"/></svg>
+                        <span>Students can borrow up to <strong>3 books</strong></span>
+                    </div>
+                    <div class="flex items-center gap-2.5 p-3 rounded-lg bg-paper text-xs font-medium">
+                        <svg class="icon text-accent-text text-base" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="11" rx="2"/><path d="M12 15v5M8 20h8"/></svg>
+                        <span>Teachers can borrow up to <strong>5 books</strong></span>
+                    </div>
+                    <div class="flex items-center gap-2.5 p-3 rounded-lg bg-paper text-xs font-medium">
+                        <svg class="icon text-accent-text text-base" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-5-5"/></svg>
+                        <span>Search by title or author</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 7. THREE LESSONS -->
+        <section class="space-y-5">
+            <h2 class="font-heading font-bold text-xl tracking-tight">Three Lessons From Week 2</h2>
+
+            <div class="space-y-3">
+                <div class="bg-card rounded-xl p-4 sm:p-5 border border-ink/10 card-shadow flex items-start gap-4">
+                    <div class="w-8 h-8 rounded-full bg-ink text-paper font-bold flex items-center justify-center text-sm shrink-0 mt-0.5">1</div>
+                    <div>
+                        <h4 class="font-heading font-semibold text-sm md:text-base mb-1">A 7 out of 10 can teach more than a 10 out of 10</h4>
+                        <p class="text-xs md:text-sm text-ink/70 leading-relaxed">My missed questions showed me exactly which relationships I had wrong.</p>
+                    </div>
+                </div>
+
+                <div class="bg-card rounded-xl p-4 sm:p-5 border border-ink/10 card-shadow flex items-start gap-4">
+                    <div class="w-8 h-8 rounded-full bg-ink text-paper font-bold flex items-center justify-center text-sm shrink-0 mt-0.5">2</div>
+                    <div>
+                        <h4 class="font-heading font-semibold text-sm md:text-base mb-1">Pictures help</h4>
+                        <p class="text-xs md:text-sm text-ink/70 leading-relaxed">A family and a table header row gave me something to hold onto when the words did not.</p>
+                    </div>
+                </div>
+
+                <div class="bg-card rounded-xl p-4 sm:p-5 border border-ink/10 card-shadow flex items-start gap-4">
+                    <div class="w-8 h-8 rounded-full bg-ink text-paper font-bold flex items-center justify-center text-sm shrink-0 mt-0.5">3</div>
+                    <div>
+                        <h4 class="font-heading font-semibold text-sm md:text-base mb-1">Looking again works</h4>
+                        <p class="text-xs md:text-sm text-ink/70 leading-relaxed">Most things that felt too big became clear once I slowed down and named the pieces.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 8. FOR ANALYSTS -->
+        <section>
+            <div class="bg-accent/10 rounded-2xl p-6 md:p-8 border border-accent/30">
+                <div class="flex items-center gap-2 text-xs font-semibold text-accent-text uppercase tracking-wider mb-2">
+                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg>
+                    <span>For Data Analysts</span>
+                </div>
+                <p class="text-sm md:text-base leading-relaxed font-medium">
+                    I am learning Python to work with data. Iterators let me read a very large file one line at a time. Classes let me build tools I can reuse. And many machine learning tools share the same methods, so one model can be swapped for another without changing the rest of the code.
+                </p>
+            </div>
+        </section>
+
+        <!-- 9. FINAL CTA -->
+        <section class="text-center py-4 flex flex-col items-center space-y-4">
+            <h3 class="font-heading font-semibold text-lg">Ready to read the full story?</h3>
+            <a data-article href="#" target="_blank" rel="noopener noreferrer" class="cta font-semibold px-8 py-3.5 rounded-xl flex items-center justify-center gap-3 text-base w-full sm:w-auto">
+                <span>Read the article on Medium</span>
+                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </a>
+        </section>
+
+        <hr class="border-ink/10">
+
+        <!-- 10. AUTHOR BLOCK -->
+        <footer class="pt-2 pb-8 flex flex-col sm:flex-row items-center justify-between gap-6">
+            <div class="flex items-center gap-4 text-center sm:text-left">
+                <div class="w-14 h-14 rounded-full bg-ink text-paper font-heading font-bold text-xl flex items-center justify-center border-2 border-accent shrink-0 shadow-md" aria-hidden="true">K</div>
+                <div>
+                    <h4 class="font-heading font-bold text-base">Kehinde</h4>
+                    <p class="text-xs text-ink/70 font-medium">I find what's hidden in data.</p>
+                </div>
+            </div>
+
+            <nav class="flex flex-wrap items-center justify-center gap-2" aria-label="Kehinde's links">
+                <a data-link="medium" href="#" target="_blank" rel="noopener noreferrer" class="pill px-3.5 py-2 rounded-full bg-card border border-ink/15 text-xs font-semibold hover:bg-accent hover:text-white hover:border-accent transition-colors">Medium</a>
+                <a data-link="linkedin" href="#" target="_blank" rel="noopener noreferrer" class="pill px-3.5 py-2 rounded-full bg-card border border-ink/15 text-xs font-semibold hover:bg-accent hover:text-white hover:border-accent transition-colors">LinkedIn</a>
+                <a data-link="github" href="#" target="_blank" rel="noopener noreferrer" class="pill px-3.5 py-2 rounded-full bg-card border border-ink/15 text-xs font-semibold hover:bg-accent hover:text-white hover:border-accent transition-colors">GitHub</a>
+                <a data-link="portfolio" href="#" target="_blank" rel="noopener noreferrer" class="pill px-3.5 py-2 rounded-full bg-card border border-ink/15 text-xs font-semibold hover:bg-accent hover:text-white hover:border-accent transition-colors">Portfolio</a>
+            </nav>
+        </footer>
+
+    </main>
+
+    <script>
+        // Edit the links here. A link left empty is hidden automatically.
+        var ARTICLE_URL = "https://medium.com/@timothykehinde456/week-2-of-learning-python-i-thought-i-was-getting-it-edb7acdfa3a3";
+        var LINKS = {
+            medium: "https://medium.com/@timothykehinde456",
+            linkedin: "https://lnkd.in/p/e93m-DUF",
+            github: "https://github.com/kennytee01",
+            portfolio: "https://bit.ly/4qIn19W"
+        };
+
+        document.querySelectorAll("[data-article]").forEach(function (el) {
+            el.setAttribute("href", ARTICLE_URL);
+        });
+        document.querySelectorAll("[data-link]").forEach(function (el) {
+            var url = LINKS[el.getAttribute("data-link")];
+            if (url) { el.setAttribute("href", url); } else { el.style.display = "none"; }
+        });
+    </script>
+</body>
+</html>
